@@ -263,7 +263,7 @@
         // --- Funciones de la UI ---
         function showMessage(text, type = 'success') {
             messageBox.textContent = text;
-            messageBox.className = `message-box show ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            messageBox.className = ⁠ message-box show ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} ⁠;
             setTimeout(() => {
                 messageBox.classList.remove('show');
             }, 3000);
@@ -293,7 +293,7 @@
                 }
 
                 const card = document.createElement('div');
-                card.className = `coupon-card p-6 rounded-2xl shadow-md border border-gray-100 ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white'}`;
+                card.className = ⁠ coupon-card p-6 rounded-2xl shadow-md border border-gray-100 ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white'} ⁠;
                 
                 card.innerHTML = `
                     <h4 class="text-3xl mb-2">${coupon.name}</h4>
@@ -349,22 +349,25 @@
 
         function redeemCoupon(couponId) {
             const coupon = appState.coupons.find(c => c.id === couponId);
+            if (!coupon) return; // Si no se encuentra el cupón, salir.
+
             if (coupon.name.includes('Cupón Maestro')) {
                  if (coupon.active) {
-                    showMessage(`¡Felicidades, redimiste el cupón: ${coupon.name}!`, 'success');
-                    coupon.active = false;
+                    showMessage(⁠ ¡Felicidades, redimiste el cupón: ${coupon.name}! ⁠, 'success');
+                    // Usamos .map() para una actualización de estado consistente
+                    appState.coupons = appState.coupons.map(c => c.id === couponId ? { ...c, active: false } : c);
                     renderCoupons();
                     saveState();
                  } else {
                     showMessage('Este cupón aún no puede ser redimido.', 'error');
                  }
-            } else if (coupon && appState.points >= coupon.cost) {
+            } else if (appState.points >= coupon.cost) {
                 appState.points -= coupon.cost;
-                const updatedCoupons = appState.coupons.map(c => c.id === couponId ? { ...c, active: false } : c);
-                appState.coupons = updatedCoupons;
+                // Usamos .map() para una actualización de estado consistente
+                appState.coupons = appState.coupons.map(c => c.id === couponId ? { ...c, active: false } : c);
                 renderPoints();
                 renderCoupons();
-                showMessage(`¡Felicidades, redimiste el cupón: ${coupon.name}!`, 'success');
+                showMessage(⁠ ¡Felicidades, redimiste el cupón: ${coupon.name}! ⁠, 'success');
                 saveState();
             } else {
                 showMessage('No tienes suficientes puntos para redimir este cupón.', 'error');
@@ -386,7 +389,7 @@
             appState.points += amount;
             renderPoints();
             renderCoupons();
-            showMessage(`Se han agregado ${amount} puntos. Puntos totales: ${appState.points}.`, 'success');
+            showMessage(⁠ Se han agregado ${amount} puntos. Puntos totales: ${appState.points}. ⁠, 'success');
             saveState();
         }
 
@@ -395,7 +398,7 @@
             if (appState.points < 0) appState.points = 0;
             renderPoints();
             renderCoupons();
-            showMessage(`Se han restado ${amount} puntos. Puntos totales: ${appState.points}.`, 'success');
+            showMessage(⁠ Se han restado ${amount} puntos. Puntos totales: ${appState.points}. ⁠, 'success');
             saveState();
         }
 
@@ -409,7 +412,7 @@
                     maestroCoupon.description = 'Este cupón es redimible cuando el juego termine.';
                 }
                 renderCoupons();
-                showMessage(`El "Cupón Maestro" ha sido ${active ? 'activado' : 'desactivado'}.`, 'success');
+                showMessage(⁠ El "Cupón Maestro" ha sido ${active ? 'activado' : 'desactivado'}. ⁠, 'success');
                 saveState();
             }
         }
