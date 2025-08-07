@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manu App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+        .text-shadow-custom {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .points-counter {
+            font-size: 4rem;
+            line-height: 1;
+            font-weight: 700;
+            color: #ff7f50;
+            transition: all 0.5s ease-in-out;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        .coupon-card {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .coupon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
+        }
+        .admin-modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+        .admin-modal {
+            z-index: 51;
+        }
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            color: white;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            z-index: 60;
+        }
+        .message-box.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .photo-card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e2e8f0;
+            border-radius: 0.5rem;
+            height: 250px; /* Altura fija optimizada para fotos verticales */
+        }
+        .photo-card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Asegura que la imagen no se recorte */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor principal de la aplicación -->
+    <div id="app-container" class="min-h-screen flex flex-col items-center justify-center p-4 relative">
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="w-full max-w-sm">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-gray-100">
+                <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Acceso Manu 🧡</h1>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-700 font-medium mb-2">Usuario</label>
+                        <input type="text" id="username" name="username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 font-medium mb-2">Contraseña</label>
+                        <input type="password" id="password" name="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-orange-500 text-white font-bold py-3 rounded-xl hover:bg-orange-600 transition-colors">Entrar</button>
+                    <div id="error-message" class="mt-4 text-center text-red-500 font-semibold hidden">Usuario o contraseña incorrectos.</div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard (hidden by default) -->
+        <div id="dashboard" class="w-full hidden">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <!-- Sección de Puntos y Saludo -->
+                <div id="points-header" class="text-center p-6 bg-white rounded-2xl shadow-xl border border-gray-100">
+                    <h2 class="text-2xl font-semibold text-gray-600 mb-2">Hola Manu, tienes</h2>
+                    <div id="points-counter" class="points-counter text-shadow-custom">0</div>
+                    <span class="text-orange-500 text-2xl">puntos acumulados 🧡</span>
+                </div>
+                
+                <!-- Sección de Propósito -->
+                <div class="bg-orange-50 text-orange-800 p-6 rounded-2xl border border-orange-200">
+                    <p class="text-center font-medium">El objetivo de esta app es que Manu pueda redimir puntos y adquirir cupones por compartir momentos especiales conmigo.</p>
+                </div>
+
+                <!-- Sección de Cupones -->
+                <h3 class="text-2xl font-bold text-center text-gray-800">Cupones Disponibles</h3>
+                <div id="coupons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Las tarjetas de cupones se insertarán aquí con JavaScript -->
+                </div>
+
+                <!-- Sección de Galería (Collage de fotos) -->
+                <h3 class="text-2xl font-bold text-center text-gray-800 mt-12">Nuestra Galería</h3>
+                <div id="photo-gallery" class="grid grid-cols-2 sm:grid-cols-3 gap-4 rounded-2xl shadow-xl border border-gray-100 p-4 bg-white">
+                    <!-- Las fotos del collage se insertarán aquí con JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Login Modal (hidden by default) -->
+        <div id="admin-login-modal" class="fixed inset-0 flex items-center justify-center p-4 hidden admin-modal-backdrop">
+            <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md admin-modal">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Acceso de Administrador</h2>
+                <form id="admin-login-form">
+                    <div class="mb-4">
+                        <label for="admin-username" class="block text-gray-700 font-medium mb-2">Usuario</label>
+                        <input type="text" id="admin-username" name="admin-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="admin-password" class="block text-gray-700 font-medium mb-2">Contraseña</label>
+                        <input type="password" id="admin-password" name="admin-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="button" id="admin-cancel-btn" class="flex-1 bg-gray-200 text-gray-800 font-bold py-3 rounded-xl hover:bg-gray-300 transition-colors">Cancelar</button>
+                        <button type="submit" class="flex-1 bg-indigo-500 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition-colors">Acceder</button>
+                    </div>
+                    <div id="admin-error-message" class="mt-4 text-center text-red-500 font-semibold hidden">Credenciales de admin incorrectas.</div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Panel Modal (hidden by default) -->
+        <div id="admin-panel-modal" class="fixed inset-0 flex items-center justify-center p-4 hidden admin-modal-backdrop">
+            <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg h-5/6 overflow-y-auto admin-modal">
+                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Panel de Administrador</h2>
+                <div class="space-y-6">
+                    <!-- Control de Puntos -->
+                    <div class="p-4 bg-gray-100 rounded-xl">
+                        <h4 class="text-lg font-semibold mb-2">Control de Puntos</h4>
+                        <div class="flex space-x-2">
+                            <button id="add-points-btn" class="flex-1 bg-green-500 text-white font-bold py-2 rounded-lg hover:bg-green-600 transition-colors">+ 10 Puntos</button>
+                            <button id="subtract-points-btn" class="flex-1 bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-600 transition-colors">- 10 Puntos</button>
+                        </div>
+                    </div>
+                    <!-- Control de Cupones -->
+                    <div class="p-4 bg-gray-100 rounded-xl">
+                        <h4 class="text-lg font-semibold mb-2">Control de Cupones</h4>
+                        <div class="flex items-center space-x-4">
+                            <label for="activate-maestro" class="text-gray-700">Activar "Cupón Maestro":</label>
+                            <input type="checkbox" id="activate-maestro" class="form-checkbox h-5 w-5 text-indigo-600 rounded">
+                        </div>
+                    </div>
+                    <!-- Control de Galería -->
+                    <div class="p-4 bg-gray-100 rounded-xl">
+                        <h4 class="text-lg font-semibold mb-2">Control de Galería</h4>
+                        <input type="text" id="new-photo-url" placeholder="URL de la nueva foto" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 mb-2">
+                        <button id="add-photo-btn" class="w-full bg-indigo-500 text-white font-bold py-2 rounded-lg hover:bg-indigo-600 transition-colors">Añadir Foto</button>
+                    </div>
+                    <button id="admin-logout-btn" class="w-full bg-gray-200 text-gray-800 font-bold py-3 rounded-xl hover:bg-gray-300 transition-colors">Cerrar Sesión Admin</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Caja de Mensajes (invisible por defecto) -->
+        <div id="message-box" class="message-box"></div>
+    </div>
+
+    <!-- Script de la Aplicación -->
+    <script>
+        // Definición de las credenciales de usuario y administrador
+        const appCredentials = {
+            user: 'manu',
+            password: 'amor',
+        };
+        const adminCredentials = {
+            user: 'admin',
+            password: 'sebastian',
+        };
+
+        // Estado inicial de la aplicación
+        let appState = {
+            points: 100, // Puntos iniciales de Manu
+            coupons: [
+                { id: 1, name: '🗺️ Paseo o Travesía', cost: 50, description: 'Una aventura especial juntos.', active: true },
+                { id: 2, name: '🎁 Detallito Misterioso', cost: 30, description: 'Un pequeño regalo sorpresa.', active: true },
+                { id: 3, name: '🪄 Elección M', cost: 60, description: 'Tú eliges el plan para un día entero.', active: true },
+                { id: 4, name: '🍳 Cocinemos Juntos', cost: 35, description: 'Una cena romántica preparada por nosotros.', active: true },
+                { id: 5, name: '🧠 Cupón Maestro', cost: 0, description: 'Este cupón es redimible cuando el juego termine.', active: false },
+            ],
+            // Fotos iniciales para el collage, ahora todas son verticales
+            photos: [
+                { url: 'https://placehold.co/400x500/1e293b/FFFFFF?text=Foto+1+Vertical' },
+                { url: 'https://placehold.co/400x500/334155/FFFFFF?text=Foto+2+Vertical' },
+                { url: 'https://placehold.co/400x500/475569/FFFFFF?text=Foto+3+Vertical' },
+                { url: 'https://placehold.co/400x500/64748b/FFFFFF?text=Foto+4+Vertical' },
+                { url: 'https://placehold.co/400x500/94a3b8/FFFFFF?text=Foto+5+Vertical' },
+                { url: 'https://placehold.co/400x500/cbd5e1/FFFFFF?text=Foto+6+Vertical' },
+            ],
+        };
+
+        // --- Selectores del DOM ---
+        const loginScreen = document.getElementById('login-screen');
+        const loginForm = document.getElementById('login-form');
+        const dashboard = document.getElementById('dashboard');
+        const pointsCounter = document.getElementById('points-counter');
+        const couponsGrid = document.getElementById('coupons-grid');
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const adminPanelModal = document.getElementById('admin-panel-modal');
+        const messageBox = document.getElementById('message-box');
+        const photoGallery = document.getElementById('photo-gallery');
+        const addPhotoButton = document.getElementById('add-photo-btn');
+        const newPhotoUrlInput = document.getElementById('new-photo-url');
+
+        // --- Funciones de la UI ---
+        function showMessage(text, type = 'success') {
+            messageBox.textContent = text;
+            messageBox.className = `message-box show ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // Renderiza el contador de puntos con animación
+        function renderPoints() {
+            pointsCounter.textContent = appState.points;
+            pointsCounter.classList.add('animate-pulse');
+            setTimeout(() => pointsCounter.classList.remove('animate-pulse'), 500);
+        }
+
+        // Renderiza los cupones en la grilla
+        function renderCoupons() {
+            couponsGrid.innerHTML = ''; // Limpia la grilla
+            appState.coupons.forEach(coupon => {
+                let buttonText;
+                let isDisabled;
+                
+                if (coupon.name.includes('Cupón Maestro')) {
+                    isDisabled = !coupon.active;
+                    buttonText = coupon.active ? 'Redimir' : 'Secreto';
+                } else {
+                    const isRedeemable = appState.points >= coupon.cost;
+                    isDisabled = !isRedeemable || !coupon.active;
+                    buttonText = coupon.active ? (isDisabled ? 'Puntos Insuficientes' : 'Redimir') : 'Secreto';
+                }
+
+                const card = document.createElement('div');
+                card.className = `coupon-card p-6 rounded-2xl shadow-md border border-gray-100 ${isDisabled ? 'bg-gray-200 text-gray-500' : 'bg-white'}`;
+                
+                card.innerHTML = `
+                    <h4 class="text-3xl mb-2">${coupon.name}</h4>
+                    <p class="text-sm font-medium mb-4">${coupon.description}</p>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl font-bold text-orange-500">${coupon.cost} Pts</span>
+                    </div>
+                    <button class="w-full font-bold py-3 rounded-lg transition-colors ${isDisabled ? 'bg-gray-300 cursor-not-allowed' : 'bg-orange-500 text-white hover:bg-orange-600'}"
+                            ${isDisabled ? 'disabled' : ''} data-id="${coupon.id}">
+                        ${buttonText}
+                    </button>
+                `;
+                couponsGrid.appendChild(card);
+            });
+
+            couponsGrid.querySelectorAll('button').forEach(button => {
+                if (!button.disabled) {
+                    button.addEventListener('click', (e) => {
+                        const couponId = parseInt(e.target.dataset.id);
+                        redeemCoupon(couponId);
+                    });
+                }
+            });
+        }
+
+        // Renderiza la galería con un número fijo de fotos
+        function renderGallery() {
+            photoGallery.innerHTML = '';
+            appState.photos.forEach(photo => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'photo-card';
+                imgContainer.innerHTML = `
+                    <img src="${photo.url}" alt="Nuestra foto" class="w-full h-full">
+                `;
+                photoGallery.appendChild(imgContainer);
+            });
+        }
+
+        // --- Funciones de Lógica de Negocio ---
+        function loginUser(username, password) {
+            if (username === appCredentials.user && password === appCredentials.password) {
+                console.log('Login exitoso: Credenciales de usuario correctas.'); // Mensaje de depuración
+                loginScreen.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                renderPoints();
+                renderCoupons();
+                renderGallery();
+            } else {
+                console.log('Login fallido: Credenciales incorrectas.'); // Mensaje de depuración
+                document.getElementById('error-message').classList.remove('hidden');
+            }
+        }
+
+        function redeemCoupon(couponId) {
+            const coupon = appState.coupons.find(c => c.id === couponId);
+            if (coupon.name.includes('Cupón Maestro')) {
+                 if (coupon.active) {
+                    showMessage(`¡Felicidades, redimiste el cupón: ${coupon.name}!`, 'success');
+                    coupon.active = false;
+                    renderCoupons();
+                 } else {
+                    showMessage('Este cupón aún no puede ser redimido.', 'error');
+                 }
+            } else if (coupon && appState.points >= coupon.cost) {
+                appState.points -= coupon.cost;
+                renderPoints();
+                renderCoupons();
+                showMessage(`¡Felicidades, redimiste el cupón: ${coupon.name}!`, 'success');
+            } else {
+                showMessage('No tienes suficientes puntos para redimir este cupón.', 'error');
+            }
+        }
+
+        function adminLogin(username, password) {
+            if (username === adminCredentials.user && password === adminCredentials.password) {
+                adminLoginModal.classList.add('hidden');
+                adminPanelModal.classList.remove('hidden');
+                const maestroCoupon = appState.coupons.find(c => c.name.includes('Cupón Maestro'));
+                document.getElementById('activate-maestro').checked = maestroCoupon.active;
+            } else {
+                document.getElementById('admin-error-message').classList.remove('hidden');
+            }
+        }
+
+        function addPoints(amount) {
+            appState.points += amount;
+            renderPoints();
+            renderCoupons();
+            showMessage(`Se han agregado ${amount} puntos. Puntos totales: ${appState.points}.`, 'success');
+        }
+
+        function subtractPoints(amount) {
+            appState.points -= amount;
+            if (appState.points < 0) appState.points = 0;
+            renderPoints();
+            renderCoupons();
+            showMessage(`Se han restado ${amount} puntos. Puntos totales: ${appState.points}.`, 'success');
+        }
+
+        function toggleMaestroCoupon(active) {
+            const maestroCoupon = appState.coupons.find(c => c.name.includes('Cupón Maestro'));
+            if (maestroCoupon) {
+                maestroCoupon.active = active;
+                if (active) {
+                    maestroCoupon.description = '¡Felicidades! Has desbloqueado el cupón maestro, espera indicaciones 😉';
+                } else {
+                    maestroCoupon.description = 'Este cupón es redimible cuando el juego termine.';
+                }
+                renderCoupons();
+                showMessage(`El "Cupón Maestro" ha sido ${active ? 'activado' : 'desactivado'}.`, 'success');
+            }
+        }
+        
+        // Función para agregar una foto, ahora con un límite de 6
+        function addPhoto(url) {
+            if (appState.photos.length >= 6) {
+                showMessage('La galería ya tiene el máximo de 6 fotos.', 'error');
+                return;
+            }
+            if (url) {
+                const newPhoto = { url: url };
+                appState.photos.push(newPhoto);
+                renderGallery();
+                showMessage('Nueva foto añadida a la galería.', 'success');
+            } else {
+                showMessage('Por favor, ingresa una URL válida.', 'error');
+            }
+        }
+
+
+        // --- Event Listeners ---
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            loginUser(username, password);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === '2') {
+                if (dashboard.classList.contains('hidden')) return;
+                adminLoginModal.classList.remove('hidden');
+            }
+        });
+
+        adminLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = e.target['admin-username'].value;
+            const password = e.target['admin-password'].value;
+            adminLogin(username, password);
+        });
+
+        document.getElementById('admin-cancel-btn').addEventListener('click', () => {
+            adminLoginModal.classList.add('hidden');
+        });
+
+        document.getElementById('add-points-btn').addEventListener('click', () => addPoints(10));
+        document.getElementById('subtract-points-btn').addEventListener('click', () => subtractPoints(10));
+        document.getElementById('activate-maestro').addEventListener('change', (e) => toggleMaestroCoupon(e.target.checked));
+        document.getElementById('add-photo-btn').addEventListener('click', () => {
+            const urlInput = document.getElementById('new-photo-url');
+            addPhoto(urlInput.value);
+            urlInput.value = '';
+        });
+        document.getElementById('admin-logout-btn').addEventListener('click', () => {
+            adminPanelModal.classList.add('hidden');
+        });
+
+        // Inicializar la aplicación
+        window.onload = () => {
+             // La galería se renderiza con el inicio de sesión
+        };
+    </script>
+</body>
+</html>
